@@ -12,9 +12,7 @@ const matrix = {
     name: ['A', 'B'],
     type: 0
 }
-//0, 1, 2
-//_  _  _
-//3, 4, 5 
+
 window.addEventListener("load", (event) => {
     chooseSizeMatrix(0)
 })
@@ -208,9 +206,6 @@ function generateMatrix(){
     solutionMatrix()
 }
 function solutionMatrix(){
-    console.log('Generation completed!!!')
-    console.dir(matrix)
-
     matrixScrene.insertAdjacentHTML('beforeend', showFinalMatrix(matrix.height[2], matrix.width[2]))
     matrixTools.insertAdjacentHTML('beforeend', showMoveWorkSpace())
     const finalMatrix = document.getElementById('finalMatrix')
@@ -370,21 +365,24 @@ function selectTd(item, row, typeBtn, fRow, sRow){
     }
     return [newF, newS]
 }
-function getDet(mat, height, width){
+function getDet(mat1, mat2, height, width){
     if(height !== width) return 'NaN'
-    if(height === 2) return mat[0][0]*mat[1][1] - mat[0][1]*mat[1][0]
-    let sum = 0
+    if(height === 2) return addFraction([mat1[0][0]*mat1[1][1], mat2[0][0]*mat2[1][1]], [-mat1[0][1]*mat1[1][0], mat2[0][1]*mat2[1][0]])
+    let sum = [0, 0]
     for(let i = 0; i < height;i++){
-        let newmat = []
+        let newmat1 = [], newmat2 = []
         for(let y = 0; y < height;y++){
             if(y === i) continue
-            let tmp = []
+            let tmp1 = [], tmp2 = []
             for(let x = 1;x < width;x++){
-                tmp.push(mat[y][x])
+                tmp1.push(mat1[y][x])
+                tmp2.push(mat2[y][x])
             }
-            newmat.push(tmp)
+            newmat1.push(tmp1)
+            newmat2.push(tmp2)
         }
-        sum += (-1)**(i) * mat[i][0] * getDet(newmat, height-1,width-1)
+        let tmpDet = getDet(newmat1, newmat2, height-1,width-1)
+        sum = addFraction(sum, [(-1)**(i) * mat1[i][0] * tmpDet[0], mat2[i][0] * tmpDet[1]])
     }
     return sum
 }
@@ -455,7 +453,18 @@ function showFinalMatrix(height, width, MatrixIndex=2){
         row += '</tr>'
         table += row
     }
-    if(matrix.type === 0){det = `<p class="determined">det A = ${getDet(matrix.matrix[0], matrix.height[0], matrix.width[0])}</p>`}
+    if(matrix.type === 0){
+        let determinator = getDet(matrix.matrix[0], matrix.matrix[3], matrix.height[0], matrix.width[0])
+        if(determinator[1] === 1) det = `<p class="determined">|A| = ${determinator[0]}</p>`
+        else det = `<div class="determined"> 
+                        |A| = 
+                        <span class="fraction">
+                            ${determinator[0]}
+                            <br><hr>
+                            ${determinator[1]}
+                        </span>
+                    </div>`
+    }
     return `
         <table id="finalMatrix">
             ${table}

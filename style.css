@@ -138,6 +138,17 @@ td{
     width: 100%;
     text-align: end;
     font-size: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
+}
+.fraction{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 5px;
+    font-size: 18px;
 }
 .matrix_tools{
     text-align: center;
